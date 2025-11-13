@@ -1,0 +1,42 @@
+try:
+        domains = load_domains_from_file(input_path)
+    except FileNotFoundError as exc:
+        logger.error(str(exc))
+        return 1
+
+    if not domains:
+        logger.error("No domains found in %s", input_path)
+        return 1
+
+    offline_only = args.offline and not args.online
+    offline_samples = load_offline_samples(project_root) if offline_only else load_offline_samples(project_root)
+
+    records = process_domains(
+        domains=domains,
+        settings=settings,
+        offline_samples=offline_samples,
+        offline_only=offline_only,
+    )
+
+    if not records:
+        logger.error("No records were produced.")
+        return 1
+
+    # Determine output path
+    if args.output:
+        output_path = Path(args.output)
+        if not output_path.is_absolute():
+            output_path = project_root / output_path
+    else:
+        out_dir = project_root / settings.output_dir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        suffix = settings.output_format
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        output_path = out_dir / f"similarweb-results-{timestamp}.{suffix}"
+
+    export_records(records, output_path, settings.output_format)
+    logger.info("Exported %d records to %s", len(records), output_path)
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
