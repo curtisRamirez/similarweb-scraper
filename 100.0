@@ -1,0 +1,13 @@
+if val < 0:
+        val = 0.0
+    if val > 1:
+        val = 1.0
+    return val
+
+def load_json_file(path: Path) -> Optional[Any]:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
