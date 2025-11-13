@@ -1,0 +1,4 @@
+settings = ScraperSettings.from_file(settings_path)
+
+    if args.format:
+        settings.output_format = args.format
